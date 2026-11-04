@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="Images/machine-learning-banner..png"
+  <img src="Images/machine-learning-banner.png..png"
        alt="Machine Learning Research and Data Preparation"
        width="100%">
 </p>
