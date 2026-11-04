@@ -30,15 +30,53 @@ display(df.head())
 
 # COMMAND ----------
 
-print("Dataset rows and columns:", df.shape)
+# MAGIC %md
+# MAGIC How big is the data?
 
-print("\nMissing values:")
-display(df.isnull().sum().sort_values(ascending=False))
+# COMMAND ----------
+
+df.shape
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC How does the data look like?
+
+# COMMAND ----------
+
+df.sample(5)
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC Are there any missing values?
+
+# COMMAND ----------
+
+# DBTITLE 1,Cell 10
+df.isnull().sum().sort_values(ascending=False)
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC How does the data look mathematically?
+
+# COMMAND ----------
+
+df.describe()
+
+# COMMAND ----------
+
 
 print("\nDuplicate rows:", df.duplicated().sum())
 
 print("\nTarget distribution:")
 display(df["survived"].value_counts())
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC What is the data type of cols?
 
 # COMMAND ----------
 
@@ -115,6 +153,7 @@ print("Testing rows:", len(X_test))
 
 # DBTITLE 1,Algorithms
 #Machine learning algorithms generally need missing values handled and text categories converted into numerical representations
+
 from sklearn.compose import ColumnTransformer
 from sklearn.impute import SimpleImputer
 from sklearn.pipeline import Pipeline
