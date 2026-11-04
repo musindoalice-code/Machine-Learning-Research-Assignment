@@ -1,4 +1,3 @@
-
 <p align="center">
   <img src="Images/machine-learning-banner.png"
        alt="Machine Learning Research and Data Preparation"
