@@ -2,9 +2,17 @@
 # /// script
 # [tool.databricks.environment]
 # environment_version = "6"
+# dependencies = [
+#   "seaborn",
+# ]
 # ///
 # MAGIC %md
-# MAGIC Titanic Survival Prediction — Machine Learning
+# MAGIC **Titanic Survival Prediction — Machine Learning**
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC The sinking of the RMS Titanic in 1912 remains one of the most infamous maritime disasters in history, leading to significant loss of life. Over 1,500 passengers and crew perished that fateful night. Understanding the factors that contributed to survival can provide valuable insights into safety protocols and social dynamics during crises. In this project, we will leverage machine learning techniques to predict the survival chances of Titanic passengers based on various features, such as sex, age, and passenger class. Using the Random Forest classification algorithm, we aim to build a predictive model that will allow us to estimate the likelihood of survival for each individual aboard the Titanic.
 
 # COMMAND ----------
 
@@ -26,7 +34,7 @@ display(df.head())
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC Step 2 — Check data quality
+# MAGIC **Step 2 — Check data quality**
 
 # COMMAND ----------
 
@@ -67,6 +75,47 @@ df.describe()
 
 # COMMAND ----------
 
+# MAGIC %md
+# MAGIC **2. Data Visualization: Understanding Survival Trends and Passenger Demographics**
+
+# COMMAND ----------
+
+# DBTITLE 1,Install seaborn
+# MAGIC %pip install seaborn
+
+# COMMAND ----------
+
+# DBTITLE 1,number of survivors and death counts:
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+f, ax = plt.subplots(1, 2, figsize=(12, 4)) 
+df['survived'].value_counts().plot.pie( 
+	explode=[0, 0.1], autopct='%1.1f%%', ax=ax[0], shadow=False) 
+ax[0].set_title('Survivors (1) and the dead (0)') 
+ax[0].set_ylabel('') 
+sns.countplot(x='survived', data=df, ax=ax[1])
+ax[1].set_ylabel('Quantity') 
+ax[1].set_title('Survivors (1) and the dead (0)') 
+plt.show()
+
+# This code is modified by Susobhan Akhuli
+
+# COMMAND ----------
+
+# DBTITLE 1,Impact of Sex on Survival Rates
+f, ax = plt.subplots(1, 2, figsize=(12, 4)) 
+df[['sex', 'survived']].groupby(['sex']).mean().plot.bar(ax=ax[0]) 
+ax[0].set_title('Survivors by sex') 
+sns.countplot(x='sex', hue='survived', data=df, ax=ax[1])
+ax[1].set_ylabel('Quantity') 
+ax[1].set_title('Survived (1) and deceased (0): men and women') 
+plt.show()
+
+
+
+# COMMAND ----------
+
 
 print("\nDuplicate rows:", df.duplicated().sum())
 
@@ -88,7 +137,32 @@ display(df.describe(include="all").T)
 # COMMAND ----------
 
 # MAGIC %md
+# MAGIC **3. Feature Engineering: Optimizing Data for Model Training**
+
+# COMMAND ----------
+
+# MAGIC %md
 # MAGIC Step 3 — Choose the features and target
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC We will now sort the age into groups. We will combine the age groups of the people and categorize them into the same groups. BY doing so we will be having fewer categories and will have a better prediction since it will be a categorical dataset.
+
+# COMMAND ----------
+
+# sort the ages into logical categories
+bins = [-1, 0, 5, 12, 18, 24, 35, 60, np.inf]
+labels = ['Unknown', 'Baby', 'Child', 'Teenager',
+          'Student', 'Young Adult', 'Adult', 'Senior']
+df['AgeGroup'] = pd.cut(df["age"].fillna(-0.5), bins, labels=labels)
+
+print("Passenger counts per age group:")
+display(df['AgeGroup'].value_counts().reindex(labels))
+
+print("Sample of ages with their assigned groups:")
+display(df[["age", "AgeGroup"]].sample(10, random_state=42))
+
 
 # COMMAND ----------
 
@@ -222,6 +296,25 @@ print("Model training completed.")
 #n_estimators=200 uses 200 decision trees.
 #random_state=42 helps make results reproducible.
 #fit() trains the model using the training data.
+
+# COMMAND ----------
+
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score
+from sklearn.pipeline import Pipeline
+
+randomforest = Pipeline(steps=[
+    ("preprocessor", preprocessor),
+    ("classifier", RandomForestClassifier())
+])
+
+# Fit the training data along with its output
+randomforest.fit(X_train, y_train)
+y_pred = randomforest.predict(X_test)
+
+# Find the accuracy score of the model
+acc_randomforest = round(accuracy_score(y_test, y_pred) * 100, 2)
+print(acc_randomforest)
 
 # COMMAND ----------
 
